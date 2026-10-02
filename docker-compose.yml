@@ -1,0 +1,14 @@
+name: key-service
+
+services:
+  app:
+    build: .
+    container_name: key-service
+    ports:
+      - "7492:8080"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: trustylynx-net
+    external: true
