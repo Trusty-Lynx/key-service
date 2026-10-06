@@ -8,11 +8,8 @@ import de.trustylynx.pepperhmac.pepperHmacRoute
 
 fun Application.configureRouting() {
     routing {
-        get("/") {
+        get("/test") {
             call.respondText("Hello, World!")
-        }
-        get("/json/kotlinx-serialization") {
-            call.respond(mapOf("hello" to "world"))
         }
         pepperHmacRoute()
     }
