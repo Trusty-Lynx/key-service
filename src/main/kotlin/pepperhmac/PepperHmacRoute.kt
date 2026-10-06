@@ -1,12 +1,13 @@
 package de.trustylynx.pepperhmac
 
+
 import io.ktor.http.HttpStatusCode // STATUSCODES (400, 401, ...)
 import io.ktor.server.request.*    // EINLESEN
 import io.ktor.server.response.*   // ANTWORTEN
 import io.ktor.server.routing.*    // URL ZUORDNEN
 import kotlinx.serialization.Serializable   // für @Serializable an den DTOs
 import kotlin.io.encoding.Base64 //dass er mit base64 rechnen kann
-
+import de.trustylynx.newUser.*
 
 @Serializable //das was reinkommt
 data class PepperHmacRequest(val purpose: String, val userId: String, val key: String)
@@ -45,6 +46,7 @@ fun Route.pepperHmacRoute(){
             }
             pepper = [1,2]
         }*/
+        if(newUserId(receive.userId)){createNewUser()}
         val h= pepperHmac(pepper, key) //Rechnen
 
         call.respond(PepperHmacResponse(h= Base64.encode(h)))
