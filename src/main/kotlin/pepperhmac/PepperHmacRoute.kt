@@ -46,7 +46,7 @@ fun Route.pepperHmacRoute(){
             }
             pepper = [1,2]
         }*/
-        if(newUserId(receive.userId)){createNewUser()}
+        if(newUserId(receive.userId)){createNewUser(receive.userId)}
         val h= pepperHmac(pepper, key) //Rechnen
 
         call.respond(PepperHmacResponse(h= Base64.encode(h)))
