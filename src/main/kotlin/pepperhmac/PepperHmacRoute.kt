@@ -1,14 +1,13 @@
 package de.trustylynx.pepperhmac
 
 import de.trustylynx.Secrets
+import de.trustylynx.keyValidation.Validate
 import io.ktor.http.HttpStatusCode // STATUSCODES (400, 401, ...)
 import io.ktor.server.request.*    // EINLESEN
 import io.ktor.server.response.*   // ANTWORTEN
 import io.ktor.server.routing.*    // URL ZUORDNEN
 import kotlinx.serialization.Serializable   // für @Serializable an den DTOs
 import kotlin.io.encoding.Base64 //dass er mit base64 rechnen kann
-import de.trustylynx.newUser.*
-import de.trustylynx.keyValidation.purposeForToken
 import io.ktor.server.plugins.BadRequestException // für kaputtes JSON / fehlende Felder
 
 
@@ -28,13 +27,7 @@ fun Route.pepperHmacRoute(){
     post("/internal/pepper-hmac"){
         //Hier eigentlich möglichst wenig Logik reinmachen. Auslagern in Servive/Manager
         // 1. Token prüfen, noch bevor der Body gelesen wird
-        //    → wer kein gültiges Token hat, bekommt immer nur 401 und erfährt sonst nichts
-        val token = call.request.headers["X-Service-Token"]
-        val tokenPurpose = token?.let { purposeForToken(it) } // null wenn Header fehlt oder Token zu keinem Service passt
-        if (tokenPurpose == null) {
-            call.respond(HttpStatusCode.Unauthorized, mapOf("error" to "unauthorized"))
-            return@post
-        }
+        val tokenPurpose = Validate.service(call) ?: return@post
 
         // 2. Body lesen; kaputtes JSON oder fehlendes Feld → 400 statt Ktor-eigener Fehlermeldung
         val receive = try {
@@ -63,7 +56,6 @@ fun Route.pepperHmacRoute(){
         }
 
         val pepper = if(receive.purpose == "login") Secrets.pepperLogin else Secrets.pepperVault
-        if(newUserId(receive.userId)){createNewUser(receive.userId)}
         val h= pepperHmac(pepper, key) //Rechnen
 
         call.respond(PepperHmacResponse(h= Base64.encode(h)))
