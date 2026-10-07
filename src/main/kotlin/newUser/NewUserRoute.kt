@@ -1,8 +1,6 @@
 package de.trustylynx.newUser
 
 import de.trustylynx.keyValidation.Validate
-import de.trustylynx.pepperhmac.PepperHmacRequest
-import de.trustylynx.pepperhmac.PepperHmacResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
@@ -10,7 +8,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import kotlinx.serialization.Serializable   // für @Serializable an den DTOs
-import kotlin.io.encoding.Base64
+
 
 @Serializable
 data class NewUserRequest(
