@@ -2,6 +2,8 @@ name: key-service
 
 services:
   app:
+    env_file:
+      - .env
     build: .
     container_name: key-service
     ports:
