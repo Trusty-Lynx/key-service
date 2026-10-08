@@ -6,7 +6,7 @@ services:
       - .env
     build: .
     container_name: key-service
-    user: "1002:1002"   # ← Ausgabe von `id trustylynx` eintragen
+    user: "1002:1002"
     ports:
       - "7492:8080"
     restart: unless-stopped
