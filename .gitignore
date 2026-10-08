@@ -16,6 +16,10 @@ out/
 # Lokale Secrets (z.B. Pepper, DB-Passwörter)
 .env
 *.env.local
+.env.bak
+
+# Alte Test-Daten (Schlüssel liegen jetzt in der Key-DB)
+data/
 
 # OS
 .DS_Store

@@ -1,8 +1,9 @@
 package de.trustylynx.newUser
 
+import de.trustylynx.common.BadRequest
+import de.trustylynx.domain.ServerKeyService
 import de.trustylynx.keyValidation.Validate
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.plugins.BadRequestException
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -19,24 +20,19 @@ data class NewUserResponse(
     val keyVersion: String
 )
 
-fun Route.newUserRoute() {
-    post("/internal/users/create"){
-        val receive = try {
-            call.receive<NewUserRequest>() //weil das nirgendwo festgelegt wird wird hier gesagt dass es das ist was rein kommt
-        } catch (e: BadRequestException) {
-            call.respond(HttpStatusCode.BadRequest, mapOf("error" to "bad_request"))
-            return@post
-        }
-        val user = receive.userId
+fun Route.newUserRoute(serverKeys: ServerKeyService) {
+    post("/internal/users/create") {
         // 1. Token prüfen, noch bevor der Body gelesen wird
         if (!Validate.authService(call)) return@post
-        if(newUserId(user)){
-            createNewUser(user)
-            call.respond(NewUserResponse("1"))
-        }
-        else{
-            call.respond(HttpStatusCode.Conflict, mapOf("error" to "user_already_exists"))
-            return@post
-        }
+
+        // Kaputtes JSON / fehlendes Feld → BadRequestException → StatusPages → 400
+        val request = call.receive<NewUserRequest>()
+        if (request.userId.isBlank()) throw BadRequest("userId missing")
+
+        // Gibt es schon → AlreadyExists → StatusPages → 409 already_exists
+        val version = serverKeys.createForNewUser(request.userId)
+
+        // TODO: auf 201 Created umstellen, sobald Auth isSuccess() prüft
+        call.respond(HttpStatusCode.OK, NewUserResponse(version.toString()))
     }
 }

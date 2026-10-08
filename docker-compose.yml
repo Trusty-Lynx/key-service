@@ -9,8 +9,6 @@ services:
     ports:
       - "7492:8080"
     restart: unless-stopped
-    volumes:
-      - /opt/trustylynx/key-service/data:/app/data
 
 networks:
   default:

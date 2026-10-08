@@ -4,7 +4,6 @@ import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.spec.GCMParameterSpec
-import de.trustylynx.newUser.ServerKey
 
 fun wrapKey(msk: ByteArray, sdkU: ByteArray, aad: ByteArray): ByteArray {
     val nonce = ByteArray(12).also{ SecureRandom().nextBytes(it)}
