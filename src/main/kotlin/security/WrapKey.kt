@@ -1,4 +1,4 @@
-package de.trustylynx.secureUserKey
+package de.trustylynx.security
 
 import java.security.SecureRandom
 import javax.crypto.Cipher

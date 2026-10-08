@@ -1,10 +1,13 @@
 package de.trustylynx
 
+import de.trustylynx.api.getKeyRoute
+import de.trustylynx.api.newUserRoute
+import de.trustylynx.api.pepperHmacRoute
+import de.trustylynx.common.Secrets
+import de.trustylynx.common.configureSerialization
 import de.trustylynx.common.configureStatusPages
 import de.trustylynx.common.createDataSource
 import de.trustylynx.domain.ServerKeyService
-import de.trustylynx.newUser.newUserRoute
-import de.trustylynx.pepperhmac.pepperHmacRoute
 import de.trustylynx.persistence.PostgresServerKeyRepository
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
@@ -37,5 +40,6 @@ fun Application.configureApp(serverKeys: ServerKeyService) {
         get("/test") { call.respondText("Hello, World!") }
         pepperHmacRoute()
         newUserRoute(serverKeys)
+        getKeyRoute(serverKeys)
     }
 }

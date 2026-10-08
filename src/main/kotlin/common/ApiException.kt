@@ -3,7 +3,7 @@ package de.trustylynx.common
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.Serializable
 
-/** Fachlicher Fehler, den StatusPages in eine 4xx-Response mit [ErrorResponse] übersetzt. */
+/** Fachlicher Fehler, den StatusPages in eine Response mit [ErrorResponse] übersetzt. */
 sealed class ApiException(
     val status: HttpStatusCode,
     val code: String,
@@ -22,6 +22,9 @@ class AlreadyExists : ApiException(HttpStatusCode.Conflict, "already_exists")
 
 class TooManyRequests(val retryAfterSeconds: Long) :
     ApiException(HttpStatusCode.TooManyRequests, "too_many_requests")
+
+/** wrapped_sdk ist manipuliert (GCM-Tag falsch). Wird zu 500. */
+class IntegrityError : ApiException(HttpStatusCode.InternalServerError, "integrity_error")
 
 /** Ein anderer Service hat nicht oder unbrauchbar geantwortet. Wird zu 502. */
 class UpstreamException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)

@@ -1,10 +1,13 @@
-package de.trustylynx.secureUserKey
+package de.trustylynx.security
 
+import javax.crypto.AEADBadTagException
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.spec.GCMParameterSpec
 
 fun unwrapKey(msk: ByteArray, wrapped: ByteArray, aad: ByteArray): ByteArray {
+    // Falsche Länge = kaputte Daten, genauso behandeln wie einen falschen Tag
+    if (wrapped.size != 60) throw AEADBadTagException("wrapped_sdk must be 60 bytes")
     val nonce = wrapped.copyOfRange(0, 12)
     val ciphertext = wrapped.copyOfRange(12, wrapped.size)
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
