@@ -1,8 +1,7 @@
-package de.trustylynx
+package de.trustylynx.common
 
 import io.ktor.server.application.*
 import io.ktor.serialization.kotlinx.json.*
-import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 
 fun Application.configureSerialization() {

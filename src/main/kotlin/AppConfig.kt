@@ -9,7 +9,7 @@ class AppConfig(
     companion object {
         fun fromEnv() = AppConfig(
             db = DbConfig(
-                url = envOrDev("DB_URL", "jdbc:postgresql://localhost:5432/keys"),
+                url = envOrDev("DB_URL", "jdbc:postgresql://localhost:5433/keys"),
                 user = envOrDev("DB_USER", "dev"),
                 password = envOrDev("DB_PASSWORD", "dev"),
                 poolName = "key-db",
