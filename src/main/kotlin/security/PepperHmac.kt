@@ -1,4 +1,4 @@
-package de.trustylynx.pepperhmac
+package de.trustylynx.security
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
