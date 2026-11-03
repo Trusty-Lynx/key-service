@@ -10,8 +10,12 @@ services:
     ports:
       - "7492:8080"
     restart: unless-stopped
+    networks:
+      - trustylynx-net
+      - key-db-net
 
 networks:
-  default:
-    name: trustylynx-net
+  trustylynx-net:
+    external: true
+  key-db-net:
     external: true
