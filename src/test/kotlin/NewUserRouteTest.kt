@@ -17,7 +17,7 @@ class NewUserRouteTest {
 
             assertEquals(HttpStatusCode.Created, response.status)
             assertEquals("1", response.json()["version"]!!.jsonPrimitive.content)
-            assertEquals(60, repo.rows["u42" to 1]!!.size)   // wrapped_sdk, nicht SDK_u
+            assertEquals(60, repo.rows["u42" to 1]!!.size)   // wrapped_sdk, not SDK_u
         }
     }
 

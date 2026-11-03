@@ -1,17 +1,19 @@
-package de.trustylynx
+package de.trustylynx.security
 
-import de.trustylynx.domain.ServerKeyService
+import de.trustylynx.TEST_MSK
+import de.trustylynx.hex
 import de.trustylynx.security.hkdf
 import de.trustylynx.security.pepperHmac
 import de.trustylynx.security.unwrapKey
 import de.trustylynx.security.wrapKey
+import de.trustylynx.services.ServerKeyService
 import javax.crypto.AEADBadTagException
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-// Testvektoren aus documentation/grundgerüst/Verschlüsselung.md, Abschnitt 8
+// test vectors from the crypto handbook in the documentation repo, section 8
 class SecurityTest {
 
     @Test
@@ -35,7 +37,7 @@ class SecurityTest {
         val aad = ServerKeyService.aad("u42", 1)
         val wrapped = wrapKey(TEST_MSK, SDK_U_V8, aad)
 
-        assertEquals(60, wrapped.size)   // 12 Nonce + 32 Key + 16 Tag
+        assertEquals(60, wrapped.size)   // 12 nonce + 32 key + 16 tag
         assertContentEquals(SDK_U_V8, unwrapKey(TEST_MSK, wrapped, aad))
     }
 

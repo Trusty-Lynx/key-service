@@ -1,13 +1,16 @@
 package de.trustylynx
 
-import de.trustylynx.domain.ServerKeyService
+import de.trustylynx.security.K_AES_V8
+import de.trustylynx.security.K_CHACHA_V8
+import de.trustylynx.security.SDK_U_V8
 import de.trustylynx.security.wrapKey
+import de.trustylynx.services.ServerKeyService
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonPrimitive
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonPrimitive
 
 // POST /internal/keys/derive, documentation/api/key-service/derive-key.md
 class GetKeyRouteTest {
@@ -114,7 +117,7 @@ class GetKeyRouteTest {
     fun `tampered wrapped_sdk returns 500 integrity_error`() {
         val repo = repoWithV8()
         val wrapped = repo.rows["u42" to 1]!!
-        wrapped[20] = (wrapped[20].toInt() xor 1).toByte()   // ein Bit in der DB verändert
+        wrapped[20] = (wrapped[20].toInt() xor 1).toByte()   // one bit changed in the db
 
         withApp(repo) { client ->
             val response = client.postJson(PATH, body(alg = "aes"), AES_TOKEN)
@@ -127,7 +130,7 @@ class GetKeyRouteTest {
     @Test
     fun `wrapped_sdk copied to another user returns 500 integrity_error`() {
         val repo = repoWithV8()
-        repo.rows["u77" to 1] = repo.rows["u42" to 1]!!.copyOf()   // AAD passt nicht mehr zu u77
+        repo.rows["u77" to 1] = repo.rows["u42" to 1]!!.copyOf()   // the aad doesn't fit u77 anymore
 
         withApp(repo) { client ->
             val response = client.postJson(PATH, body(userId = "u77", alg = "aes"), AES_TOKEN)
@@ -137,7 +140,7 @@ class GetKeyRouteTest {
         }
     }
 
-    /** u42 mit SDK_u aus Testvektor V8, eingepackt mit dem Test-MSK. */
+    // u42 with SDK_u from test vector V8, wrapped with the test msk
     private fun repoWithV8() = InMemoryServerKeyRepository().apply {
         rows["u42" to 1] = wrapKey(TEST_MSK, SDK_U_V8, ServerKeyService.aad("u42", 1))
     }

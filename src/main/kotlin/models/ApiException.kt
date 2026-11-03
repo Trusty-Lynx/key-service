@@ -1,10 +1,9 @@
-package de.trustylynx.common
+package de.trustylynx.models
 
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.Serializable
 
-/** Fachlicher Fehler, den StatusPages in eine Response mit [ErrorResponse] übersetzt. */
-sealed class ApiException(
+// no stack trace, these only ever turn into a response
+open class ApiException(
     val status: HttpStatusCode,
     val code: String,
     val reason: String? = null,
@@ -20,17 +19,4 @@ class NotFound : ApiException(HttpStatusCode.NotFound, "not_found")
 
 class AlreadyExists : ApiException(HttpStatusCode.Conflict, "already_exists")
 
-class TooManyRequests(val retryAfterSeconds: Long) :
-    ApiException(HttpStatusCode.TooManyRequests, "too_many_requests")
-
-/** wrapped_sdk ist manipuliert (GCM-Tag falsch). Wird zu 500. */
 class IntegrityError : ApiException(HttpStatusCode.InternalServerError, "integrity_error")
-
-/** Ein anderer Service hat nicht oder unbrauchbar geantwortet. Wird zu 502. */
-class UpstreamException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
-
-@Serializable
-data class ErrorResponse(
-    val error: String,
-    val reason: String? = null,
-)
