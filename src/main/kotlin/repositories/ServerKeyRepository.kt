@@ -1,9 +1,18 @@
-package de.trustylynx.persistence
+package de.trustylynx.repositories
 
-import de.trustylynx.common.AlreadyExists
-import de.trustylynx.common.withConnection
+import de.trustylynx.models.AlreadyExists
+import de.trustylynx.models.WrappedKey
 import java.sql.SQLException
 import javax.sql.DataSource
+
+private const val UNIQUE_VIOLATION = "23505"
+
+interface ServerKeyRepository {
+    suspend fun create(userId: String, version: Int, wrappedSdk: ByteArray)
+
+    // version null means the active key
+    suspend fun find(userId: String, version: Int?): WrappedKey?
+}
 
 class PostgresServerKeyRepository(private val dataSource: DataSource) : ServerKeyRepository {
 
@@ -18,11 +27,11 @@ class PostgresServerKeyRepository(private val dataSource: DataSource) : ServerKe
                 ).use { statement ->
                     statement.setString(1, userId)
                     statement.setInt(2, version)
-                    statement.setBytes(3, wrappedSdk)   // 60 echte Bytes → BYTEA
+                    statement.setBytes(3, wrappedSdk)
                     statement.executeUpdate()
                 }
             } catch (e: SQLException) {
-                // Primary Key (user_id, version) verletzt → Nutzer hat schon Schlüssel
+                // primary key (user_id, version) is taken, so this user already has keys
                 if (e.sqlState == UNIQUE_VIOLATION) throw AlreadyExists()
                 throw e
             }
@@ -44,8 +53,4 @@ class PostgresServerKeyRepository(private val dataSource: DataSource) : ServerKe
                 }
             }
         }
-
-    private companion object {
-        const val UNIQUE_VIOLATION = "23505"
-    }
 }

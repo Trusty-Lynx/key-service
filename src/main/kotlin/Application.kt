@@ -1,26 +1,21 @@
 package de.trustylynx
 
-import de.trustylynx.api.getKeyRoute
-import de.trustylynx.api.newUserRoute
-import de.trustylynx.api.pepperHmacRoute
-import de.trustylynx.common.Secrets
-import de.trustylynx.common.configureSerialization
-import de.trustylynx.common.configureStatusPages
-import de.trustylynx.common.createDataSource
-import de.trustylynx.domain.ServerKeyService
-import de.trustylynx.persistence.PostgresServerKeyRepository
+import de.trustylynx.plugins.configureSerialization
+import de.trustylynx.plugins.configureStatusPages
+import de.trustylynx.repositories.PostgresServerKeyRepository
+import de.trustylynx.repositories.createDataSource
+import de.trustylynx.routes.internalRoutes
+import de.trustylynx.routes.testRoute
+import de.trustylynx.services.ServerKeyService
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
 import io.ktor.server.netty.EngineMain
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 
 fun main(args: Array<String>) {
     EngineMain.main(args)
 }
 
-/** Einziger Ort, an dem Abhängigkeiten gebaut und verdrahtet werden. */
 fun Application.module() {
     val config = AppConfig.fromEnv()
 
@@ -32,14 +27,12 @@ fun Application.module() {
     configureApp(serverKeys)
 }
 
-/** Plugins und Routen, getrennt von [module], damit Tests Fakes einsetzen können. */
+// separate from module() so the tests can start the app with fakes instead of a real db
 fun Application.configureApp(serverKeys: ServerKeyService) {
     configureSerialization()
     configureStatusPages()
     routing {
-        get("/test") { call.respondText("Hello, World!") }
-        pepperHmacRoute()
-        newUserRoute(serverKeys)
-        getKeyRoute(serverKeys)
+        testRoute()
+        internalRoutes(serverKeys)
     }
 }
