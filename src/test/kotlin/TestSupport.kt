@@ -1,9 +1,9 @@
 package de.trustylynx
 
-import de.trustylynx.common.AlreadyExists
-import de.trustylynx.domain.ServerKeyService
-import de.trustylynx.persistence.ServerKeyRepository
-import de.trustylynx.persistence.WrappedKey
+import de.trustylynx.models.AlreadyExists
+import de.trustylynx.services.ServerKeyService
+import de.trustylynx.repositories.ServerKeyRepository
+import de.trustylynx.models.WrappedKey
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.post
@@ -21,8 +21,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.util.HexFormat
 import java.util.concurrent.ConcurrentHashMap
 
-// Testwerte. Tokens und pepper müssen zu tasks.test in build.gradle.kts passen,
-// weil Secrets sie aus Umgebungsvariablen liest.
+// tokens and peppers have to match tasks.test in build.gradle.kts, Secrets reads them from the environment
 const val AUTH_TOKEN = "test-auth-token"
 const val VAULT_TOKEN = "test-vault-token"
 const val AES_TOKEN = "test-aes-token"
@@ -30,15 +29,14 @@ const val CHACHA_TOKEN = "test-chacha-token"
 const val PEPPER_LOGIN = "pepper-login-test-value-32-bytes"
 const val PEPPER_VAULT = "pepper-vault-test-value-32-bytes"
 
-/** Eigener MSK für die Tests, unabhängig von Secrets.msk. */
+// not the same as Secrets.msk on purpose
 val TEST_MSK = ByteArray(32) { 9 }
 
-/** Startet die App ohne application.yaml (also ohne echte DB) mit einem In-Memory-Repository. */
 fun withApp(
     repo: InMemoryServerKeyRepository = InMemoryServerKeyRepository(),
     block: suspend (HttpClient) -> Unit,
 ) = testApplication {
-    // Leere Config, damit application.yaml nicht module() mit echter DB lädt.
+    // empty config, otherwise application.yaml would load module() with the real db
     environment { config = MapApplicationConfig() }
     application { configureApp(ServerKeyService(repo, TEST_MSK)) }
     block(client)
@@ -52,7 +50,6 @@ suspend fun HttpClient.postJson(path: String, body: String, token: String? = nul
 
 suspend fun HttpResponse.json(): JsonObject = Json.parseToJsonElement(bodyAsText()).jsonObject
 
-/** Fehlercode aus {"error": "..."} */
 suspend fun HttpResponse.errorCode(): String = json()["error"]!!.jsonPrimitive.content
 
 fun hex(s: String): ByteArray = HexFormat.of().parseHex(s)
@@ -61,7 +58,7 @@ fun b64(bytes: ByteArray): String = java.util.Base64.getEncoder().encodeToString
 
 fun unb64(s: String): ByteArray = java.util.Base64.getDecoder().decode(s)
 
-/** Ersatz für PostgresServerKeyRepository. Alle Zeilen gelten als aktiv, die höchste Version gewinnt. */
+// every row counts as active here, the highest version wins
 class InMemoryServerKeyRepository : ServerKeyRepository {
     val rows = ConcurrentHashMap<Pair<String, Int>, ByteArray>()
 

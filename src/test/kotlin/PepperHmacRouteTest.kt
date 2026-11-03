@@ -1,12 +1,13 @@
 package de.trustylynx
 
+import de.trustylynx.security.LOGIN_KEY_V0
 import io.ktor.http.HttpStatusCode
-import kotlinx.serialization.json.jsonPrimitive
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlinx.serialization.json.jsonPrimitive
 
 // POST /internal/pepper-hmac, documentation/api/key-service/pepper-hmac.md
 class PepperHmacRouteTest {
@@ -104,7 +105,7 @@ class PepperHmacRouteTest {
     private fun body(purpose: String, key: String) =
         """{"purpose":"$purpose","userId":"u42","key":"$key"}"""
 
-    /** Unabhängig von pepperHmac() nachgerechnet. */
+    // calculated without pepperHmac() on purpose
     private fun hmac(pepper: ByteArray, key: ByteArray): ByteArray =
         Mac.getInstance("HmacSHA256").apply { init(SecretKeySpec(pepper, "HmacSHA256")) }.doFinal(key)
 

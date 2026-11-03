@@ -32,7 +32,7 @@ dependencies {
     testImplementation(ktorLibs.server.testHost)
 }
 
-// Secrets liest Umgebungsvariablen. Für Tests feste Testwerte, müssen zu src/test/kotlin/TestSupport.kt passen
+// Secrets reads these from the environment, the values have to match src/test/kotlin/TestSupport.kt
 tasks.test {
     environment("AUTH_SERVICE_TOKEN", "test-auth-token")
     environment("VAULT_SERVICE_TOKEN", "test-vault-token")

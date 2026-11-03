@@ -1,29 +1,23 @@
-# Gradle
-.gradle/
+# Build
 build/
-!gradle/wrapper/gradle-wrapper.jar
-
-# Kotlin
+.gradle/
 .kotlin/
-
-# IntelliJ IDEA
-.idea/
-*.iml
-*.iws
-*.ipr
 out/
 
-# Lokale Secrets (z.B. Pepper, DB-Passwörter)
+# IDE
+.idea/
+*.iml
+
+# OS
+.DS_Store
+
+# Secrets
 .env
 *.env.local
 .env.bak
 
-# Alte Test-Daten (Schlüssel liegen jetzt in der Key-DB)
+# old test data, keys live in the key db now
 data/
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Logs
 *.log
