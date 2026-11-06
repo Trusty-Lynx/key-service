@@ -5,7 +5,6 @@ import de.trustylynx.plugins.configureStatusPages
 import de.trustylynx.repositories.PostgresServerKeyRepository
 import de.trustylynx.repositories.createDataSource
 import de.trustylynx.routes.internalRoutes
-import de.trustylynx.routes.testRoute
 import de.trustylynx.services.ServerKeyService
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
@@ -32,7 +31,6 @@ fun Application.configureApp(serverKeys: ServerKeyService) {
     configureSerialization()
     configureStatusPages()
     routing {
-        testRoute()
         internalRoutes(serverKeys)
     }
 }

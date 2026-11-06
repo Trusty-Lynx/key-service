@@ -25,15 +25,6 @@ import kotlin.test.assertEquals
 class ResponseContractTest {
 
     @Test
-    fun `GET test says hello`() = withApp { client ->
-        val response = client.get("/test")
-
-        assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Hello, World!", response.bodyAsText())
-        assertEquals("text/plain; charset=UTF-8", response.headers[HttpHeaders.ContentType])
-    }
-
-    @Test
     fun `unknown path gives an empty 404`() = withApp { client ->
         val response = client.get("/internal/nope")
 

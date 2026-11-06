@@ -35,7 +35,6 @@ fun Route.internalRoutes(serverKeys: ServerKeyService) {
 
         val response = serverKeys.createForNewUser(request.userId)
 
-        // TODO: switch to 201 Created once auth checks isSuccess()
         call.respond(HttpStatusCode.Created, response)
     }
 

@@ -12,11 +12,10 @@ Kotlin 2.4 · Ktor 3.6 · PostgreSQL 17 · Java 21
 | `POST` | `/internal/pepper-hmac` | `HMAC-SHA256(pepper, key)` für einen `purpose` | Auth-Service mit `login`, Vault-Service mit `vault` |
 | `POST` | `/internal/users/create` | Serverschlüssel `SDK_u` für einen neuen Nutzer würfeln und mit dem MSK verpackt speichern, antwortet `201` | nur Auth-Service |
 | `POST` | `/internal/keys/derive` | Teilschlüssel für einen Nutzer ableiten, ohne `version` aus dem aktiven Schlüssel | Crypto 1 mit `aes`, Crypto 2 mit `chacha` |
-| `GET` | `/test` | Antwortet `Hello, World!` | alle, ohne Token |
 
 Die `/internal/…`-Endpoints erkennen den Aufrufer am Header `X-Service-Token`. Fehlt der Token oder gehört er nicht zu diesem Endpoint, kommt `401`.
 Gültig, aber nicht berechtigt ergibt `403`: ein fremder `purpose` oder `alg`, bei `/internal/users/create` auch der Token jedes anderen Service.
-Der Token wird immer vor dem Body geprüft. Felder, Fehler und Beispiele stehen im Repo `documentation` unter `api/key-service/`.
+Der Token wird immer vor dem Body geprüft.
 
 ## Struktur
 
@@ -83,11 +82,9 @@ Die `.env` liegt nur auf dem Server. Der Container hört auf Port `8080`, nach a
 - **MSK:** Die Doku nennt ein Docker Secret unter `/run/secrets/msk`, der Code liest die Umgebungsvariable `MSK`.
 - **Format von Pepper und MSK:** Der Wert wird als Text genommen und nicht dekodiert. Ein Hex-String mit 64 Zeichen lässt den Start scheitern, zufällige 32 Byte lassen sich so nicht angeben. Mit `openssl rand -hex 16` sind es nur 128 Bit Zufall in 32 Byte.
 - **Name `TEST_PEPPER_*`:** Der Name klingt nach Testwerten, der Server liest aber genau diese Variablen.
-- **`TODO` zu `201 Created`:** Die Route antwortet schon mit `201` und der `auth-service` prüft `isSuccess()`. Das `TODO` in `InternalRoutes.kt` ist damit erledigt und kann weg.
 - **Eingaben:** `userId` ist bei `/internal/pepper-hmac` Pflicht, wird aber nicht benutzt und darf leer sein. Eine Längenbegrenzung für `userId` gibt es nirgends. `json()` ist locker eingestellt, `{purpose:login}` ohne Anführungszeichen wird also angenommen.
 - **Erreichbarkeit:** `docker-compose.yml` veröffentlicht Port `7492`, die `/internal/…`-Endpoints schützt dann nur der Token.
 - **`Dockerfile`:** `EXPOSE 7491` passt nicht zum Port `8080`, auf dem der Service wirklich hört.
 - **Fehlende Endpoints:** Es gibt keinen Weg, die Schlüssel eines Nutzers zu löschen (Crypto-Shredding) oder zu rotieren.
-- **Schlüssel in `toString()`:** `PepperHmacRequest` und `GetKeyResponse` sind `data class` mit Schlüsseln und würden sie in einem Log ausgeben. Heute loggt sie niemand.
 - **Abhängigkeiten:** `ktor-client-cio`, `ktor-client-content-negotiation` und `bouncycastle` stehen in `build.gradle.kts`, werden aber nicht benutzt.
 - **`Secrets`:** Tokens, Pepper und MSK liegen im globalen Objekt `Secrets`, nicht wie im `auth-service` in `AppConfig`. So bleiben die Tests beim Umbau unverändert. Umstellen braucht eine Zeile in `TestSupport.kt`.
