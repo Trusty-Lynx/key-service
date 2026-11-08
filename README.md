@@ -9,6 +9,7 @@ Kotlin 2.4 · Ktor 3.6 · PostgreSQL 17 · Java 21
 
 | Methode | Pfad | Zweck | Wer darf das aufrufen? |
 |---|---|---|---|
+| `GET` | `/health` | `200`, wenn Service und Datenbank laufen, sonst `503` | alle, ohne Token |
 | `POST` | `/internal/pepper-hmac` | `HMAC-SHA256(pepper, key)` für einen `purpose` | Auth-Service mit `login`, Vault-Service mit `vault` |
 | `POST` | `/internal/users/create` | Serverschlüssel `SDK_u` für einen neuen Nutzer würfeln und mit dem MSK verpackt speichern, antwortet `201` | nur Auth-Service |
 | `POST` | `/internal/keys/derive` | Teilschlüssel für einen Nutzer ableiten, ohne `version` aus dem aktiven Schlüssel | Crypto 1 mit `aes`, Crypto 2 mit `chacha` |

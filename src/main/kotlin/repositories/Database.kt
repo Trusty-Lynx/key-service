@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.sql.Connection
+import java.sql.SQLException
 import javax.sql.DataSource
 
 private const val POOL_NAME = "key-db"
@@ -25,3 +26,10 @@ fun createDataSource(config: DbConfig): HikariDataSource {
 // jdbc blocks the thread while it waits, so this has to run on the IO pool
 suspend fun <T> DataSource.withConnection(block: (Connection) -> T): T =
     withContext(Dispatchers.IO) { connection.use(block) }
+
+suspend fun DataSource.isReachable(): Boolean =
+    try {
+        withConnection { it.isValid(2) }
+    } catch (_: SQLException) {
+        false
+    }

@@ -34,11 +34,12 @@ val TEST_MSK = ByteArray(32) { 9 }
 
 fun withApp(
     repo: InMemoryServerKeyRepository = InMemoryServerKeyRepository(),
+    healthy: Boolean = true,
     block: suspend (HttpClient) -> Unit,
 ) = testApplication {
     // empty config, otherwise application.yaml would load module() with the real db
     environment { config = MapApplicationConfig() }
-    application { configureApp(ServerKeyService(repo, TEST_MSK)) }
+    application { configureApp(ServerKeyService(repo, TEST_MSK)) { healthy } }
     block(client)
 }
 
